@@ -36,7 +36,7 @@ local function checkForCommands(jobId)
 		if not hasHitFive then
 			if #game.Players:GetPlayers() >= 5 then
 				hasHitFive = true
-				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` has hit 5 players! There may be a flight occuring! @everyone", jobId))
+				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` ([%s](%s)) has hit 5 players! There may be a flight occuring! @everyone", jobId,game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, "https://roblox.com/games/"..game.GameId))
 			end
 		end
 	end
@@ -45,7 +45,7 @@ end
 local chatToken = http:GenerateGUID(false)
 local jobId = game.JobId ~= "" and game.JobId or http:GenerateGUID(false)
 
-sendMessage(string.format("<:rack:1262457591422779423> | The system has been deployed on server `%s` (%s). The token for this game is `%s`", jobId, game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, chatToken))
+sendMessage(string.format("<:rack:1262457591422779423> | The system has been deployed on server `%s` ([%s](%s)). The token for this game is `%s`", jobId, game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, "https://roblox.com/games/"..game.GameId, chatToken))
 
 game:GetService("Players").PlayerAdded:Connect(function(plr)
 	checkPlayerWhitelist(plr)
