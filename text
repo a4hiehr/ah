@@ -45,7 +45,7 @@ end
 local chatToken = http:GenerateGUID(false)
 local jobId = game.JobId ~= "" and game.JobId or http:GenerateGUID(false)
 
-sendMessage(string.format("<:rack:1262457591422779423> | The system has been deployed on server `%s`. The token for this game is `%s`", jobId, chatToken))
+sendMessage(string.format("<:rack:1262457591422779423> | The system has been deployed on server `%s` (%s). The token for this game is `%s`", jobId, game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, chatToken))
 
 game:GetService("Players").PlayerAdded:Connect(function(plr)
 	checkPlayerWhitelist(plr)
