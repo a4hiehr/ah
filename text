@@ -36,7 +36,7 @@ local function checkForCommands(jobId)
 		if not hasHitFive then
 			if #game.Players:GetPlayers() >= 5 then
 				hasHitFive = true
-				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` has hit 5 players! There may be a flight occuring!", jobId))
+				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` has hit 5 players! There may be a flight occuring! @everyone", jobId))
 			end
 		end
 	end
